@@ -92,28 +92,44 @@ def generate_from_reverse(n, lo, hi):
     return None, None
 
 
-def generate_shuffled(n, lo, hi):
+def generate_from_shuffled(n, lo, hi):
+    arr = list(range(n))
+    random.shuffle(arr)
     total_pairs = n * (n - 1) // 2
-    for _ in range(1000):
-        arr = list(range(n))
-        random.shuffle(arr)
-        d = count_inversions(arr) / total_pairs
-        if lo <= d <= hi:
-            return arr, d
+    inversions = count_inversions(arr)
+    d = inversions / total_pairs
+    if lo <= d <= hi:
+        return arr, d
+    going_down = d > hi
+    for _ in range(10000):
+        i = random.randint(0, n - 2)
+        j = random.randint(i + 1, min(i + max(n // 5, 2), n - 1))
+        delta = swap_delta(arr, i, j)
+        new_inv = inversions + delta
+        new_d = new_inv / total_pairs
+        if lo <= new_d <= hi:
+            arr[i], arr[j] = arr[j], arr[i]
+            return arr, new_d
+        # Accept if moving toward target
+        if going_down and new_d < d:
+            arr[i], arr[j] = arr[j], arr[i]
+            inversions = new_inv
+            d = new_d
+        elif not going_down and new_d > d:
+            arr[i], arr[j] = arr[j], arr[i]
+            inversions = new_inv
+            d = new_d
     return None, None
 
 
 def generate_input(n, lo, hi):
-    # Fast path: shuffle works well near 0.5
-    if 0.40 <= lo and hi <= 0.60:
-        arr, d = generate_shuffled(n, lo, hi)
-        if arr is not None:
-            return arr, d
-    # Swap-based: start from sorted or reversed
-    if (lo + hi) / 2 <= 0.5:
+    mid = (lo + hi) / 2
+    if mid <= 0.2:
         return generate_from_sorted(n, lo, hi)
-    else:
+    elif mid >= 0.8:
         return generate_from_reverse(n, lo, hi)
+    else:
+        return generate_from_shuffled(n, lo, hi)
 
 
 def run_push_swap(arr):

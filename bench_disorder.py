@@ -7,48 +7,97 @@ import subprocess
 import sys
 
 
-def disorder(arr):
+def count_inversions(arr):
     n = len(arr)
-    if n <= 1:
-        return 0.0
-    inversions = sum(1 for i in range(n) for j in range(i + 1, n) if arr[i] > arr[j])
-    total = n * (n - 1) // 2
-    return inversions / total
+    return sum(1 for i in range(n) for j in range(i + 1, n) if arr[i] > arr[j])
+
+
+def swap_delta(arr, i, j):
+    """Compute change in inversion count if arr[i] and arr[j] are swapped. O(n)."""
+    n = len(arr)
+    delta = 0
+    a, b = arr[i], arr[j]
+    # The (i,j) pair itself flips
+    if a > b:
+        delta -= 1
+    else:
+        delta += 1
+    # Check all other positions against i and j
+    for k in range(n):
+        if k == i or k == j:
+            continue
+        v = arr[k]
+        # Old contribution of position i (value a) vs k
+        if k < i:
+            if v > a:
+                delta -= 1  # was inversion, won't be after (b goes here)
+            if v > b:
+                delta += 1  # wasn't inversion with a, will be with b
+        elif k > i:
+            if a > v:
+                delta -= 1
+            if b > v:
+                delta += 1
+        # Old contribution of position j (value b) vs k
+        if k < j:
+            if v > b:
+                delta -= 1
+            if v > a:
+                delta += 1
+        elif k > j:
+            if b > v:
+                delta -= 1
+            if a > v:
+                delta += 1
+    return delta
 
 
 def generate_from_sorted(n, lo, hi):
     arr = list(range(n))
+    total_pairs = n * (n - 1) // 2
+    inversions = 0
     for _ in range(10000):
         i = random.randint(0, n - 2)
         j = random.randint(i + 1, min(i + max(n // 5, 2), n - 1))
-        arr[i], arr[j] = arr[j], arr[i]
-        d = disorder(arr)
+        delta = swap_delta(arr, i, j)
+        new_inv = inversions + delta
+        d = new_inv / total_pairs
         if lo <= d <= hi:
-            return arr, d
-        if d > hi:
             arr[i], arr[j] = arr[j], arr[i]
+            return arr, d
+        if d <= hi:  # accept swap (still below target, keep going)
+            arr[i], arr[j] = arr[j], arr[i]
+            inversions = new_inv
+        # else: skip swap (would overshoot)
     return None, None
 
 
 def generate_from_reverse(n, lo, hi):
     arr = list(range(n - 1, -1, -1))
+    total_pairs = n * (n - 1) // 2
+    inversions = total_pairs  # fully reversed = all pairs inverted
     for _ in range(10000):
         i = random.randint(0, n - 2)
         j = random.randint(i + 1, min(i + max(n // 5, 2), n - 1))
-        arr[i], arr[j] = arr[j], arr[i]
-        d = disorder(arr)
+        delta = swap_delta(arr, i, j)
+        new_inv = inversions + delta
+        d = new_inv / total_pairs
         if lo <= d <= hi:
-            return arr, d
-        if d < lo:
             arr[i], arr[j] = arr[j], arr[i]
+            return arr, d
+        if d >= lo:  # accept swap (still above target, keep going)
+            arr[i], arr[j] = arr[j], arr[i]
+            inversions = new_inv
+        # else: skip swap (would undershoot)
     return None, None
 
 
 def generate_shuffled(n, lo, hi):
+    total_pairs = n * (n - 1) // 2
     for _ in range(1000):
         arr = list(range(n))
         random.shuffle(arr)
-        d = disorder(arr)
+        d = count_inversions(arr) / total_pairs
         if lo <= d <= hi:
             return arr, d
     return None, None

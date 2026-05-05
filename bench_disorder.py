@@ -39,7 +39,7 @@ def generate_from_reverse(n, lo, hi):
         d = disorder(arr)
         if lo <= d <= hi:
             return arr, d
-        if d > hi:
+        if d < lo:
             arr[i], arr[j] = arr[j], arr[i]
     return None, None
 
@@ -55,12 +55,16 @@ def generate_shuffled(n, lo, hi):
 
 
 def generate_input(n, lo, hi):
-    if hi <= 0.20:
+    # Fast path: shuffle works well near 0.5
+    if 0.40 <= lo and hi <= 0.60:
+        arr, d = generate_shuffled(n, lo, hi)
+        if arr is not None:
+            return arr, d
+    # Swap-based: start from sorted or reversed
+    if (lo + hi) / 2 <= 0.5:
         return generate_from_sorted(n, lo, hi)
-    elif lo >= 0.80:
-        return generate_from_reverse(n, lo, hi)
     else:
-        return generate_shuffled(n, lo, hi)
+        return generate_from_reverse(n, lo, hi)
 
 
 def run_push_swap(arr):

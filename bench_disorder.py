@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import random
 import subprocess
 import sys
@@ -80,6 +81,7 @@ def main():
     parser.add_argument('-n', type=int, default=500, help='Input size (default: 500)')
     parser.add_argument('-i', type=int, default=30, help='Iterations per window (default: 30)')
     parser.add_argument('-d', type=str, default=None, help='Disorder range LO-HI, e.g. "0.05-0.10"')
+    parser.add_argument('--log', action='store_true', help='Save generated args to logs/ files')
     args = parser.parse_args()
 
     if args.d:
@@ -94,6 +96,11 @@ def main():
     else:
         windows = [(i * 0.05, (i + 1) * 0.05) for i in range(20)]
 
+    if args.log:
+        log_dir = 'logs'
+        os.makedirs(log_dir, exist_ok=True)
+
+    run_idx = 0
     for lo, hi in windows:
         for _ in range(args.i):
             arr, d = generate_input(args.n, lo, hi)
@@ -105,6 +112,11 @@ def main():
                 print(f"disorder={d:.4f}  ops=ERROR", file=sys.stderr)
                 continue
             print(f"disorder={d:.4f}  ops={ops}")
+            if args.log:
+                logfile = os.path.join(log_dir, f"{run_idx:04d}_d{d:.4f}_ops{ops}.txt")
+                with open(logfile, 'w') as f:
+                    f.write(' '.join(str(x) for x in arr) + '\n')
+                run_idx += 1
 
 
 if __name__ == '__main__':

@@ -157,7 +157,7 @@ def check_binary():
 def main():
     parser = argparse.ArgumentParser(description='Benchmark push_swap by disorder window')
     parser.add_argument('-n', type=int, default=500, help='Input size (default: 500)')
-    parser.add_argument('-i', type=int, default=30, help='Iterations per window (default: 30)')
+    parser.add_argument('-i', type=int, default=10, help='Iterations per window (default: 10)')
     parser.add_argument('-d', type=str, default=None, help='Disorder range LO-HI, e.g. "0.05-0.10"')
     parser.add_argument('--log', action='store_true', help='Save generated args to logs/ files')
     args = parser.parse_args()

@@ -1,6 +1,6 @@
-# Disorder Threshold Testing for O(n²) Sorting Algorithms
+# Disorder Threshold Testing for push_swap
 
-A Python utility for generating test data with precise disorder values to expose performance issues in O(n²) sorting algorithms used in academic sorting subjects (e.g. push_swap).
+Test your push_swap with specified disorder range.
 
 ## The Problem
 
@@ -13,7 +13,7 @@ At `n=500` with disorder values in the range of **0.15–0.19**, simple O(n²) a
 Testing with specific disorder values is non-trivial, and the subject only demonstrates how to test with random data — which always lands close to a disorder of ~0.5. As a result:
 
 - Most students never test specific disorder ranges at all.
-- Those who do often use deeply flawed approaches. A common mistake: to generate "20% disorder," they concatenate 80% of a sorted array with 20% of a reverse-sorted array. The resulting disorder metric reads as 20%, but the data is trivially sortable by any algorithm and bears no resemblance to real-world random data with 20% disorder.
+- Those who do often use flawed approaches. E.g. they generate "20% disorder," they concatenate 80% of a sorted array with 20% of a reverse-sorted array. The resulting disorder metric reads as 20%, but the data is trivially sortable by any algorithm and bears no resemblance to real-world random data with 20% disorder.
 
 ## What This Tool Does
 
@@ -47,19 +47,9 @@ git clone https://github.com/aleksify/pushswap-disorder
 python3 ./pushswap-disorder/bench_disorder.py
 ```
 
-The repo is gitignore-friendly — add `pushswap-disorder/` to your `.gitignore` if you don't want it tracked.
-
 ### Option 2: Curl it
 
-If you'd rather not clone, you can download just the script into your project directory:
-
-```
-cd /path/to/push_swap
-curl -O https://raw.githubusercontent.com/aleksify/pushswap-disorder/main/bench_disorder.py
-python3 ./bench_disorder.py
-```
-
-Or run it without saving it to disk at all:
+If you'd rather not clone, you can just run the script in your project directory:
 
 ```
 cd /path/to/push_swap

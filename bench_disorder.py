@@ -145,6 +145,15 @@ def run_push_swap(arr):
     return len(result.stdout.strip().split('\n'))
 
 
+def check_binary():
+    if not os.path.isfile('./push_swap'):
+        print("Error: ./push_swap binary not found. Build it first (make).", file=sys.stderr)
+        sys.exit(1)
+    if not os.access('./push_swap', os.X_OK):
+        print("Error: ./push_swap exists but is not executable.", file=sys.stderr)
+        sys.exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(description='Benchmark push_swap by disorder window')
     parser.add_argument('-n', type=int, default=500, help='Input size (default: 500)')
@@ -152,6 +161,7 @@ def main():
     parser.add_argument('-d', type=str, default=None, help='Disorder range LO-HI, e.g. "0.05-0.10"')
     parser.add_argument('--log', action='store_true', help='Save generated args to logs/ files')
     args = parser.parse_args()
+    check_binary()
 
     if args.d:
         parts = args.d.split('-', 1)

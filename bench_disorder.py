@@ -164,7 +164,27 @@ def main():
     parser.add_argument('-d', type=str, default=None, help='Disorder range LO-HI, e.g. "0.05-0.10"')
     parser.add_argument('-s', type=str, default=None, help='Strategy flag (e.g. simple, medium, complex, adaptive)')
     parser.add_argument('--log', action='store_true', help='Save generated args to logs/ files')
+    parser.add_argument('--gen', action='store_true', help='Only generate data, print to stdout, no binary call')
     args = parser.parse_args()
+
+    if args.gen:
+        if not args.d:
+            print("Error: --gen requires -d to specify disorder range", file=sys.stderr)
+            sys.exit(1)
+        parts = args.d.split('-', 1)
+        try:
+            lo = float(parts[0])
+            hi = float(parts[1])
+        except (ValueError, IndexError):
+            print(f"Error: invalid disorder range '{args.d}', use format LO-HI", file=sys.stderr)
+            sys.exit(1)
+        arr, d = generate_input(args.n, lo, hi)
+        if arr is None:
+            print(f"Error: failed to generate data for disorder {lo}-{hi}", file=sys.stderr)
+            sys.exit(1)
+        print(' '.join(str(x) for x in arr))
+        return
+
     check_binary()
 
     if args.d:

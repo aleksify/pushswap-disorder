@@ -132,10 +132,13 @@ def generate_input(n, lo, hi):
         return generate_from_shuffled(n, lo, hi)
 
 
-def run_push_swap(arr):
-    args = ' '.join(str(x) for x in arr)
+def run_push_swap(arr, strategy=None):
+    cmd = ['./push_swap']
+    if strategy:
+        cmd.append(f'--{strategy}')
+    cmd.append(' '.join(str(x) for x in arr))
     result = subprocess.run(
-        ['./push_swap', args],
+        cmd,
         capture_output=True, text=True
     )
     if result.returncode != 0:
@@ -159,6 +162,7 @@ def main():
     parser.add_argument('-n', type=int, default=500, help='Input size (default: 500)')
     parser.add_argument('-i', type=int, default=10, help='Iterations per window (default: 10)')
     parser.add_argument('-d', type=str, default=None, help='Disorder range LO-HI, e.g. "0.05-0.10"')
+    parser.add_argument('-s', type=str, default=None, help='Strategy flag (e.g. simple, medium, complex, adaptive)')
     parser.add_argument('--log', action='store_true', help='Save generated args to logs/ files')
     args = parser.parse_args()
     check_binary()
@@ -186,7 +190,7 @@ def main():
             if arr is None:
                 print(f"disorder=FAILED  ops=N/A  (window {lo:.2f}-{hi:.2f})", file=sys.stderr)
                 continue
-            ops = run_push_swap(arr)
+            ops = run_push_swap(arr, args.s)
             if ops is None:
                 print(f"disorder={d:.4f}  ops=ERROR", file=sys.stderr)
                 continue
